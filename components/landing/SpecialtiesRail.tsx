@@ -28,16 +28,22 @@ export function SpecialtiesRail({ specialties }: { specialties: Specialty[] }) {
     if (!el || !tr || reducedMotion()) return;
     const mm = gsap.matchMedia();
     mm.add("(min-width: 1024px)", () => {
-      const distance = () => tr.scrollWidth - window.innerWidth;
+      // Sticky nativo (no pin de GSAP): el navegador fija la escena y nunca "se suelta tarde"
+      // aunque se baje muy rápido. La altura de la sección = recorrido horizontal + 1 pantalla.
+      const distance = () => Math.max(0, tr.scrollWidth - window.innerWidth);
+      const size = () => {
+        el.style.height = `${distance() + window.innerHeight}px`;
+      };
+      size();
+      ScrollTrigger.addEventListener("refreshInit", size);
       const tween = gsap.to(tr, {
         x: () => -distance(),
         ease: "none",
         scrollTrigger: {
           trigger: el,
           start: "top top",
-          end: () => `+=${distance()}`,
-          pin: true,
-          scrub: 0.6,
+          end: "bottom bottom",
+          scrub: 0.3,
           invalidateOnRefresh: true,
         },
       });
@@ -49,6 +55,11 @@ export function SpecialtiesRail({ specialties }: { specialties: Specialty[] }) {
           scrollTrigger: { trigger: img.parentElement, containerAnimation: tween, start: "left right", end: "right left", scrub: true },
         });
       });
+      ScrollTrigger.refresh();
+      return () => {
+        ScrollTrigger.removeEventListener("refreshInit", size);
+        el.style.height = "";
+      };
     });
     return () => mm.revert();
   }, []);
@@ -66,8 +77,8 @@ export function SpecialtiesRail({ specialties }: { specialties: Specialty[] }) {
     gsap.to(e.currentTarget, { rotateY: 0, rotateX: 0, duration: 0.8, ease: "elastic.out(1,0.5)" });
 
   return (
-    <section ref={section} id="especialidades" aria-labelledby="esp-title" className="relative overflow-hidden bg-carbon">
-      <div className="flex min-h-[100svh] flex-col justify-center py-24 lg:py-0">
+    <section ref={section} id="especialidades" aria-labelledby="esp-title" className="relative bg-carbon">
+      <div className="flex min-h-[100svh] flex-col justify-center overflow-x-clip py-24 lg:sticky lg:top-0 lg:h-[100svh] lg:py-0">
         <div className="frame mb-10 grid gap-6 lg:mb-12 lg:grid-cols-12">
           <SplitHeading id="esp-title" className="font-display text-[clamp(44px,6vw,96px)] lg:col-span-7">
             Especialidades jurídicas

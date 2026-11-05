@@ -7,6 +7,8 @@ import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
+// Si se baja rápido y una animación ligada al scroll queda atrás, se completa al instante.
+ScrollTrigger.defaults({ fastScrollEnd: true });
 
 declare global {
   interface Window {
@@ -34,7 +36,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     window.__motionReady = true;
     if (process.env.NODE_ENV !== "production") (window as unknown as { __ST: typeof ScrollTrigger }).__ST = ScrollTrigger;
     if (reducedMotion()) return;
-    const lenis = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), smoothWheel: true });
+    const lenis = new Lenis({ lerp: 0.12, smoothWheel: true, wheelMultiplier: 0.9 });
     window.__lenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
     const tick = (time: number) => lenis.raf(time * 1000);
@@ -54,18 +56,18 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
       gsap.set(els, { opacity: 1, y: 0 });
       return;
     }
+    const show = (batch: Element[]) => {
+      // Lo que ya quedó arriba (scroll rápido) aparece sin animar: nunca contenido a medias.
+      const passed = batch.filter((el) => el.getBoundingClientRect().bottom < window.innerHeight * 0.4);
+      const fresh = batch.filter((el) => !passed.includes(el));
+      if (passed.length) gsap.set(passed, { opacity: 1, y: 0, overwrite: true });
+      if (fresh.length) gsap.to(fresh, { opacity: 1, y: 0, duration: 0.6, ease: "power3.out", stagger: 0.06, overwrite: true });
+    };
     const triggers = ScrollTrigger.batch(els, {
-      start: "top 88%",
+      start: "top 96%",
       once: true,
-      onEnter: (batch) =>
-        gsap.to(batch, {
-          opacity: 1,
-          y: 0,
-          duration: 0.9,
-          ease: "expo.out",
-          stagger: 0.08,
-          overwrite: true,
-        }),
+      onEnter: show,
+      onEnterBack: show,
     });
     // Las fuentes y las imágenes cambian alturas: recalcular posiciones de los disparadores.
     const refresh = () => ScrollTrigger.refresh();

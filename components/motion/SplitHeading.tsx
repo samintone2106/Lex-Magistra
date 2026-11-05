@@ -32,11 +32,11 @@ export function SplitHeading({ as: Tag = "h2", children, className, trigger = "s
       gsap.from(split.words, {
         yPercent: 110,
         rotate: 4,
-        duration: 1.1,
-        ease: "expo.out",
-        stagger: 0.06,
+        duration: 0.8,
+        ease: "power4.out",
+        stagger: 0.05,
         delay,
-        scrollTrigger: trigger === "scroll" ? { trigger: el, start: "top 85%", once: true } : undefined,
+        scrollTrigger: trigger === "scroll" ? { trigger: el, start: "top 95%", toggleActions: "play none none none", fastScrollEnd: true } : undefined,
       });
     }, el);
     return () => {

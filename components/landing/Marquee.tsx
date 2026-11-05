@@ -16,14 +16,20 @@ export function Marquee({ items }: { items: { slug: string; name: string }[] }) 
     const el = track.current;
     if (!el || reducedMotion()) return;
     const loop = gsap.to(el, { xPercent: -50, duration: 40, ease: "none", repeat: -1 });
+    // Una sola animación de velocidad reutilizada: acelera con el scroll y vuelve a 1 sola.
+    const speed = { v: 1 };
+    const apply = () => loop.timeScale(speed.v);
+    let settle: gsap.core.Tween | undefined;
     const st = ScrollTrigger.create({
       onUpdate: (self) => {
-        const v = self.getVelocity() / 300;
-        gsap.to(loop, { timeScale: gsap.utils.clamp(-6, 6, v === 0 ? 1 : v), duration: 0.4, overwrite: true });
-        gsap.to(loop, { timeScale: self.direction, duration: 1.2, delay: 0.4 });
+        speed.v = 1 + gsap.utils.clamp(0, 5, Math.abs(self.getVelocity()) / 600);
+        apply();
+        settle?.kill();
+        settle = gsap.to(speed, { v: 1, duration: 0.8, ease: "power2.out", onUpdate: apply });
       },
     });
     return () => {
+      settle?.kill();
       loop.kill();
       st.kill();
     };

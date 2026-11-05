@@ -71,7 +71,6 @@ export function Process() {
                 type="button"
                 aria-expanded={isOpen}
                 onClick={() => setOpen(i)}
-                onMouseEnter={() => window.matchMedia("(hover: hover)").matches && setOpen(i)}
                 className="flex h-16 w-full items-center px-5 text-left text-[18px] font-semibold lg:absolute lg:inset-0 lg:h-full lg:items-end lg:px-6 lg:pb-6"
               >
                 <span
