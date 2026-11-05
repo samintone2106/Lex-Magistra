@@ -10,7 +10,11 @@
     "typecheck": "tsc --noEmit",
     "gen:seed": "tsx scripts/gen-seed.ts",
     "test:db": "tsx scripts/test-db.ts",
-    "make-admin": "tsx --env-file=.env.local scripts/make-admin.ts"
+    "make-admin": "tsx --env-file=.env.local scripts/make-admin.ts",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:env": "tsx scripts/local-env.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -33,6 +37,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.5.29",
+    "supabase": "^3.0.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"
