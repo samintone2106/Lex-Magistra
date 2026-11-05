@@ -1,12 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { safeNext } from "@/lib/safe-redirect";
 
 /** Recibe los enlaces de correo de Supabase (confirmación y recuperación) y crea la sesión. */
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
-  const rawNext = searchParams.get("next") ?? "/panel";
-  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/panel";
+  const next = safeNext(searchParams.get("next"));
   if (!isSupabaseConfigured()) return NextResponse.redirect(`${origin}/ingresar?config=1`);
 
   const supabase = await createClient();

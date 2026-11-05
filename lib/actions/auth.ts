@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 import { rateLimit } from "@/lib/rate-limit";
+import { safeNext } from "@/lib/safe-redirect";
 import {
   emailSchema,
   formToObject,
@@ -30,10 +31,6 @@ async function clientIp() {
   return (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? "local";
 }
 
-/** Solo rutas internas para evitar redirecciones abiertas. */
-function safeNext(next: string | undefined) {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/panel";
-}
 
 export async function signUp(_prev: ActionState, fd: FormData): Promise<ActionState> {
   const parsed = signUpSchema.safeParse(formToObject(fd));
