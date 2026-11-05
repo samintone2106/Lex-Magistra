@@ -5,7 +5,10 @@ export function safeNext(next: string | null | undefined, fallback = "/panel"): 
   if (!next || !next.startsWith("/") || /[\\\s]/.test(next)) return fallback;
   try {
     const u = new URL(next, BASE);
-    return u.origin === BASE ? u.pathname + u.search + u.hash : fallback;
+    if (u.origin !== BASE) return fallback;
+    // Validar también la salida normalizada: "/.//x" se normaliza a "//x".
+    const out = u.pathname + u.search + u.hash;
+    return out.startsWith("/") && !out.startsWith("//") && !out.startsWith("/\\") ? out : fallback;
   } catch {
     return fallback;
   }
