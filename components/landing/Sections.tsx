@@ -162,7 +162,7 @@ export function ReviewsSection({ reviews }: { reviews: (Review & { lawyerName?: 
   const author = (r: Review) => (r.show_name ? r.public_name : "Cliente verificado");
 
   return (
-    <section aria-labelledby="opiniones-title" className="grid min-h-[100svh] grid-rows-[auto_1fr_auto] bg-navy py-20">
+    <section aria-labelledby="opiniones-title" className={`grid grid-rows-[auto_1fr_auto] bg-navy py-20 ${reviews.length ? "min-h-[100svh]" : ""}`}>
       <div className="frame flex flex-wrap items-end justify-between gap-6">
         <h2 id="opiniones-title" data-reveal className="font-display text-[clamp(40px,4.4vw,68px)]">
           Opiniones de clientes
@@ -200,7 +200,7 @@ export function ReviewsSection({ reviews }: { reviews: (Review & { lawyerName?: 
         </>
       ) : (
         <>
-          <div className="frame flex items-center justify-center py-16">
+          <div className="frame flex items-center justify-center py-12">
             <p data-reveal className="font-display max-w-[30ch] text-center text-[clamp(24px,2.6vw,36px)] leading-[1.15]">
               Las opiniones de nuestros clientes aparecerán aquí, tal como ellos las escriban.
             </p>

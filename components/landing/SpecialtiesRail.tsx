@@ -78,7 +78,7 @@ export function SpecialtiesRail({ specialties }: { specialties: Specialty[] }) {
           </p>
         </div>
 
-        <div ref={track} className="frame flex flex-col gap-4 lg:w-max lg:flex-row lg:gap-6 lg:pr-[30vw]">
+        <div ref={track} className="frame flex flex-col gap-4 lg:w-max lg:flex-row lg:gap-6 lg:pr-[var(--margin)]">
           {specialties.map((s) => {
             const img = SPECIALTY_IMAGE[s.slug] ?? IMAGES.columnas;
             return (

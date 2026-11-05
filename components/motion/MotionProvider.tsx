@@ -15,8 +15,13 @@ declare global {
   }
 }
 
+/**
+ * Animaciones activas por defecto (decisión de la firma: el sitio se luce con movimiento).
+ * El visitante puede reducirlas con el interruptor del pie de página; la elección se guarda
+ * en localStorage y el script de arranque pone la clase .reduce-motion en <html>.
+ */
 export const reducedMotion = () =>
-  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  typeof document !== "undefined" && document.documentElement.classList.contains("reduce-motion");
 
 /**
  * Scroll suave (Lenis) sincronizado con ScrollTrigger + entradas globales:
@@ -27,6 +32,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     window.__motionReady = true;
+    if (process.env.NODE_ENV !== "production") (window as unknown as { __ST: typeof ScrollTrigger }).__ST = ScrollTrigger;
     if (reducedMotion()) return;
     const lenis = new Lenis({ duration: 1.15, easing: (t) => 1 - Math.pow(1 - t, 4), smoothWheel: true });
     window.__lenis = lenis;
@@ -61,9 +67,14 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
           overwrite: true,
         }),
     });
-    const refresh = setTimeout(() => ScrollTrigger.refresh(), 300);
+    // Las fuentes y las imágenes cambian alturas: recalcular posiciones de los disparadores.
+    const refresh = () => ScrollTrigger.refresh();
+    const t = setTimeout(refresh, 300);
+    document.fonts?.ready.then(refresh);
+    window.addEventListener("load", refresh);
     return () => {
-      clearTimeout(refresh);
+      clearTimeout(t);
+      window.removeEventListener("load", refresh);
       triggers.forEach((t) => t.kill());
     };
   }, [pathname]);

@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { SiteSettings, Specialty } from "@/lib/types";
 import { IMAGES } from "@/lib/content/credits";
 import { whatsappUrl } from "@/lib/whatsapp";
+import { MotionToggle } from "./MotionToggle";
 
 export function Footer({ settings, specialties }: { settings: SiteSettings; specialties: Specialty[] }) {
   const wa = whatsappUrl(settings.whatsapp_number, settings.whatsapp_message);
@@ -93,7 +94,7 @@ export function Footer({ settings, specialties }: { settings: SiteSettings; spec
               jurídica individual.{" "}
               <Link className="link" href="/legal/tratamiento-datos">Tratamiento de datos</Link> ·{" "}
               <Link className="link" href="/legal/privacidad">Aviso de privacidad</Link> ·{" "}
-              <Link className="link" href="/legal/terminos">Términos y condiciones</Link>
+              <Link className="link" href="/legal/terminos">Términos y condiciones</Link> · <MotionToggle />
             </p>
           </div>
           <p className="mt-3 text-[13px] leading-snug">

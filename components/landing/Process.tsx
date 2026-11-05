@@ -1,6 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
+import { IMAGES } from "@/lib/content/credits";
 
 const STAGES = [
   {
@@ -8,30 +10,35 @@ const STAGES = [
     text: "Por WhatsApp, por el formulario o desde tu panel. Solo necesitamos una descripción breve y tus datos de contacto.",
     bg: "var(--carbon)",
     ink: "var(--white)",
+    img: IMAGES.candelaria,
   },
   {
     name: "Revisamos y te orientamos",
     text: "Un abogado del área revisa la información y te indica, con franqueza, si el asunto tiene camino jurídico y cuál.",
     bg: "var(--graphite)",
     ink: "var(--white)",
+    img: IMAGES.palacio,
   },
   {
     name: "Propuesta por escrito",
     text: "Si decides avanzar, recibes una propuesta con el alcance del servicio y los honorarios. Nada empieza sin tu aprobación.",
     bg: "var(--navy)",
     ink: "var(--white)",
+    img: IMAGES.columnas,
   },
   {
     name: "Estrategia y actuación",
     text: "Definimos la estrategia, preparamos los documentos y actuamos ante la autoridad que corresponda.",
     bg: "var(--steel)",
     ink: "var(--white)",
+    img: IMAGES.escalera,
   },
   {
     name: "Seguimiento",
     text: "Consultas el estado y el historial de tu solicitud en tu panel cuando quieras.",
     bg: "var(--mist)",
     ink: "var(--navy)",
+    img: IMAGES.capitolio,
   },
 ];
 
@@ -76,9 +83,14 @@ export function Process() {
                 </span>
               </button>
               {isOpen ? (
-                <div className="animate-[fade-up_500ms_var(--ease-out)_both] px-5 pb-6 lg:pointer-events-none lg:absolute lg:inset-0 lg:flex lg:flex-col lg:justify-between lg:p-10">
-                  <p className="font-display hidden text-[40px] leading-none lg:block">{s.name}</p>
-                  <p className="max-w-[36ch] text-[17px] leading-relaxed lg:text-[18px]">{s.text}</p>
+                <div className="animate-[fade-up_500ms_var(--ease-out)_both] px-5 pb-6 lg:pointer-events-none lg:absolute lg:inset-0 lg:grid lg:grid-cols-2 lg:gap-8 lg:p-10">
+                  <div className="flex flex-col justify-between">
+                    <p className="font-display hidden text-[44px] leading-[0.95] lg:block">{s.name}</p>
+                    <p className="max-w-[36ch] text-[17px] leading-relaxed lg:text-[18px]">{s.text}</p>
+                  </div>
+                  <figure className="duotone relative hidden overflow-hidden lg:block">
+                    <Image src={s.img.src} alt="" fill sizes="28vw" className="animate-[hero-zoom_6s_var(--ease-out)_both] object-cover" />
+                  </figure>
                 </div>
               ) : null}
             </li>

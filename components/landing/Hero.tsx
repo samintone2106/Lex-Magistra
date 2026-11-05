@@ -66,21 +66,20 @@ export function Hero({ advisorHref, advisorExternal }: Props) {
         },
       });
       photos.slice(1).forEach((p, i) => {
-        tl.fromTo(p, { clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0% 0 0 0)", ease: "none", duration: 1 }, i)
-          .fromTo(p.querySelector("img"), { scale: 1.35 }, { scale: 1, ease: "none", duration: 1 }, i)
-          .to(photos[i], { scale: 0.92, filter: "brightness(0.5)", ease: "none", duration: 1 }, i)
+        // La foto nueva se abre desde abajo y se asienta; la anterior queda debajo, intacta.
+        tl.fromTo(p, { clipPath: "inset(100% 0% 0% 0%)" }, { clipPath: "inset(0% 0% 0% 0%)", ease: "power2.inOut", duration: 1 }, i)
+          .fromTo(p.querySelector("img"), { scale: 1.3, yPercent: 8 }, { scale: 1, yPercent: 0, ease: "power2.out", duration: 1 }, i)
           .to("[data-hero-stage]", { backgroundColor: STAGES[i + 1].ground, ease: "none", duration: 1 }, i);
       });
-      tl.to(title, { yPercent: -18, ease: "none", duration: STAGES.length - 1 }, 0);
     }, el);
     return () => ctx.revert();
   }, []);
 
   return (
-    <section ref={root} aria-labelledby="hero-title" className="relative" style={{ height: `${100 + (STAGES.length - 1) * 55}svh` }}>
+    <section ref={root} data-hero-section aria-labelledby="hero-title" className="relative" style={{ height: `${100 + (STAGES.length - 1) * 55}svh` }}>
       <div data-hero-stage className="sticky top-0 h-[100svh] overflow-hidden bg-carbon">
         {/* Fotos: retrato 2:3 centrado, de 90px bajo el borde superior hasta el fondo */}
-        <div className="absolute inset-x-[var(--margin)] bottom-0 top-[96px] mx-auto w-auto max-w-none md:left-1/2 md:right-auto md:w-[min(37vw,560px)] md:-translate-x-1/2">
+        <div className="absolute inset-x-[var(--margin)] bottom-0 top-[96px] mx-auto w-auto max-w-none md:left-1/2 md:right-auto md:w-[min(46vw,720px)] md:-translate-x-1/2">
           {STAGES.map((s, i) => (
             <figure
               key={s.img.src}
@@ -93,10 +92,10 @@ export function Hero({ advisorHref, advisorExternal }: Props) {
                 alt={s.caption}
                 fill
                 priority={i === 0}
-                sizes="(min-width: 768px) 37vw, 100vw"
+                sizes="(min-width: 768px) 46vw, 100vw"
                 className="object-cover"
               />
-              <figcaption className="absolute bottom-3 right-3 z-10 text-[13px] text-ink">{s.caption}</figcaption>
+              <figcaption className="absolute left-3 top-3 z-10 bg-carbon/70 px-2 py-1 text-[13px] text-ink">{s.caption}</figcaption>
             </figure>
           ))}
         </div>

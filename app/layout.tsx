@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export const viewport: Viewport = { themeColor: "#1A1B1D", colorScheme: "dark" };
 
 // Marca .js antes de pintar; si GSAP no arranca en 2.5 s, se muestra todo (.js-fallback).
-const BOOT = `document.documentElement.classList.add('js');try{if(sessionStorage.getItem('intro'))document.documentElement.classList.add('no-intro');else sessionStorage.setItem('intro','1')}catch(e){}setTimeout(function(){if(!window.__motionReady)document.documentElement.classList.add('js-fallback')},2500);`;
+const BOOT = `document.documentElement.classList.add('js');try{if(localStorage.getItem('motion')==='reduce')document.documentElement.classList.add('reduce-motion');if(sessionStorage.getItem('intro'))document.documentElement.classList.add('no-intro');else sessionStorage.setItem('intro','1')}catch(e){}setTimeout(function(){if(!window.__motionReady)document.documentElement.classList.add('js-fallback')},2500);`;
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
