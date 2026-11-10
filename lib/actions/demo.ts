@@ -7,7 +7,7 @@ import { DEMO_ACCOUNTS, demoSwitcherEnabled, type DemoKey } from "@/lib/demo-acc
 
 /** Cierra la sesión actual y entra con la cuenta de prueba elegida. Solo en desarrollo local. */
 export async function switchDemoAccount(key: DemoKey): Promise<{ ok: false; message: string } | never> {
-  if (!demoSwitcherEnabled()) return { ok: false, message: "El cambio de cuenta solo funciona en desarrollo local." };
+  if (!demoSwitcherEnabled()) return { ok: false, message: "El cambio de cuenta solo funciona con la base de datos local." };
   const account = DEMO_ACCOUNTS.find((a) => a.key === key);
   if (!account) return { ok: false, message: "Cuenta desconocida." };
 

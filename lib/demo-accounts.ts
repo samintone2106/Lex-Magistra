@@ -1,6 +1,7 @@
 /**
  * Cuentas de prueba para cambiar de rol rápido mientras se desarrolla.
- * Solo se activa con DEMO_SWITCHER=1, fuera de producción y contra un Supabase local.
+ * Solo se activa con DEMO_SWITCHER=1 y contra un Supabase local (127.0.0.1/localhost),
+ * también en `next start` local. Un despliegue real apunta a un Supabase remoto, así que nunca la muestra.
  */
 export const DEMO_ACCOUNTS = [
   { key: "admin", email: "admin@example.com", label: "Admin", home: "/admin" },
@@ -13,7 +14,6 @@ export type DemoKey = (typeof DEMO_ACCOUNTS)[number]["key"];
 export function demoSwitcherEnabled(): boolean {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
   return (
-    process.env.NODE_ENV !== "production" &&
     process.env.DEMO_SWITCHER === "1" &&
     !!process.env.DEMO_PASSWORD &&
     /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(url.replace(/\/+$/, ""))
