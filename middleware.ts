@@ -47,6 +47,9 @@ export async function middleware(request: NextRequest) {
   return response;
 }
 
+// Solo rutas que dependen de la sesión: privadas (protección + refresco del token) y de
+// autenticación (redirigir al panel si ya hay sesión). Las páginas públicas no pasan por aquí
+// para no pagar un getUser() de red en cada navegación ni prefetch.
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|img/|.*\\.(?:svg|png|jpg|jpeg|webp|ico)$).*)"],
+  matcher: ["/panel/:path*", "/admin/:path*", "/ingresar", "/registro", "/recuperar", "/restablecer", "/auth/:path*"],
 };

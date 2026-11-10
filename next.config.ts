@@ -18,7 +18,15 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  // Los adjuntos de solicitudes llegan por Server Action (uno por envío, máx. 10 MB + cabeceras multipart).
+  // El middleware también lee el cuerpo de esas peticiones, así que su límite debe ser igual.
+  experimental: {
+    serverActions: { bodySizeLimit: "11mb" },
+    middlewareClientMaxBodySize: "11mb",
+  },
   images: {
+    formats: ["image/avif", "image/webp"],
+    qualities: [70, 75],
     remotePatterns: supabaseUrl
       ? [
           {

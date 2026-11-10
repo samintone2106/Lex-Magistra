@@ -8,7 +8,7 @@ import { reducedMotion } from "@/components/motion/MotionProvider";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/** Cinta de especialidades: corre sola y acelera / invierte según la velocidad del scroll. */
+/** Cinta de especialidades: corre sola, sigue el sentido del scroll y se inclina según su velocidad. */
 export function Marquee({ items }: { items: { slug: string; name: string }[] }) {
   const track = useRef<HTMLDivElement>(null);
 
@@ -16,22 +16,35 @@ export function Marquee({ items }: { items: { slug: string; name: string }[] }) 
     const el = track.current;
     if (!el || reducedMotion()) return;
     const loop = gsap.to(el, { xPercent: -50, duration: 40, ease: "none", repeat: -1 });
-    // Una sola animación de velocidad reutilizada: acelera con el scroll y vuelve a 1 sola.
+    // Arranca lejos del inicio para poder correr hacia atrás sin topar con el tiempo 0.
+    loop.totalTime(400);
+    // La cinta sigue el sentido del scroll; con la velocidad acelera y se inclina, y luego vuelve sola.
     const speed = { v: 1 };
+    let dir = 1;
     const apply = () => loop.timeScale(speed.v);
+    const skewTo = gsap.quickTo(el, "skewX", { duration: 0.6, ease: "power3.out" });
     let settle: gsap.core.Tween | undefined;
+    let unskew: gsap.core.Tween | undefined;
     const st = ScrollTrigger.create({
       onUpdate: (self) => {
-        speed.v = 1 + gsap.utils.clamp(0, 5, Math.abs(self.getVelocity()) / 600);
+        const v = self.getVelocity();
+        if (self.direction) dir = self.direction;
+        speed.v = dir * (1 + gsap.utils.clamp(0, 5, Math.abs(v) / 600));
         apply();
+        skewTo(gsap.utils.clamp(-3, 3, -v / 400));
         settle?.kill();
-        settle = gsap.to(speed, { v: 1, duration: 0.8, ease: "power2.out", onUpdate: apply });
+        settle = gsap.to(speed, { v: dir, duration: 0.8, ease: "power2.out", onUpdate: apply });
+        // Cuando el scroll se detiene, la inclinación se endereza.
+        unskew?.kill();
+        unskew = gsap.delayedCall(0.12, () => skewTo(0));
       },
     });
     return () => {
       settle?.kill();
+      unskew?.kill();
       loop.kill();
       st.kill();
+      gsap.set(el, { clearProps: "transform" });
     };
   }, []);
 
@@ -45,7 +58,7 @@ export function Marquee({ items }: { items: { slug: string; name: string }[] }) 
             href={`/especialidades/${s.slug}`}
             tabIndex={i >= items.length ? -1 : undefined}
             aria-hidden={i >= items.length ? true : undefined}
-            className="font-display text-[clamp(48px,8vw,128px)] leading-none text-mist transition-colors duration-300 hover:text-ink"
+            className="font-display text-[clamp(48px,8vw,128px)] leading-none text-mist transition-colors duration-200 ease-[var(--ease-out)] hover:text-ink focus-visible:text-ink"
           >
             {s.name}
           </Link>

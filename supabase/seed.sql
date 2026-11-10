@@ -11,7 +11,7 @@ on conflict (slug) do nothing;
 
 insert into public.site_settings (key, value)
 values
-('firm_name', 'Firma Jurídica'),
+('firm_name', 'Lex Magistra'),
 ('firm_tagline', 'Abogados en Colombia'),
 ('whatsapp_number', ''),
 ('whatsapp_message', 'Hola, quisiera orientación sobre un asunto legal.'),

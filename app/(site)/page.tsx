@@ -4,9 +4,13 @@ import { SpecialtiesRail } from "@/components/landing/SpecialtiesRail";
 import { Orientador } from "@/components/landing/Orientador";
 import { Process } from "@/components/landing/Process";
 import { Preloader } from "@/components/landing/Preloader";
+import { Rights } from "@/components/landing/Rights";
+import { FirstConsult } from "@/components/landing/FirstConsult";
 import { ContactSection, Faq, GENERAL_FAQS, Intro, ReviewsSection, Team, WhyUs } from "@/components/landing/Sections";
 import { getApprovedReviews, getLawyers, getSettings, getSpecialties } from "@/lib/data";
 import { whatsappUrl } from "@/lib/whatsapp";
+
+export const revalidate = 300;
 
 export default async function HomePage() {
   const [settings, specialties, lawyers, reviews] = await Promise.all([
@@ -43,8 +47,10 @@ export default async function HomePage() {
       <Orientador specialties={specialties} />
       <Team lawyers={lawyers} />
       <WhyUs />
+      <Rights />
       <Process />
       <ReviewsSection reviews={reviews.slice(0, 3)} />
+      <FirstConsult settings={settings} />
       <Faq />
       <ContactSection settings={settings} specialties={specialties} waHref={wa} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />

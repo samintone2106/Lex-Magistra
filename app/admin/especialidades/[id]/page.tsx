@@ -11,7 +11,7 @@ export default async function AdminEspecialidad({ params }: { params: Promise<{ 
   if (id === "nueva") {
     return (
       <>
-        <PanelTitle title="Nueva especialidad" />
+        <PanelTitle title="Nueva especialidad" back={{ href: "/admin/especialidades", label: "Especialidades" }} lead="Cada especialidad tiene su propia página pública con problemas, servicios y preguntas frecuentes." />
         <SpecialtyForm />
       </>
     );
@@ -23,8 +23,10 @@ export default async function AdminEspecialidad({ params }: { params: Promise<{ 
   const s = data as Specialty;
   return (
     <>
-      <PanelTitle title={s.name}>
-        <Link href={`/especialidades/${s.slug}`} target="_blank" className="btn btn-secondary">Ver página</Link>
+      <PanelTitle title={s.name} back={{ href: "/admin/especialidades", label: "Especialidades" }} lead={`/especialidades/${s.slug} · ${s.is_active ? "publicada" : "oculta"}`}>
+        <Link href={`/especialidades/${s.slug}`} target="_blank" className="btn btn-secondary">
+          Ver página <span className="sr-only">(se abre en una pestaña nueva)</span>
+        </Link>
       </PanelTitle>
       <SpecialtyForm specialty={s} />
     </>

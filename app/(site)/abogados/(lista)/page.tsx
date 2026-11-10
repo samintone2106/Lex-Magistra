@@ -5,6 +5,8 @@ import { PageHeader } from "@/components/site/PageHeader";
 import { LawyerCard } from "@/components/site/LawyerCard";
 import { IMAGES } from "@/lib/content/credits";
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Nuestros abogados",
   description: "Conoce la formación, la experiencia y las áreas de trabajo de los abogados de la firma.",
@@ -17,7 +19,7 @@ export default async function AbogadosPage({ searchParams }: { searchParams: Pro
   const current = specialties.find((s) => s.slug === especialidad);
 
   const chip = (active: boolean) =>
-    `inline-flex min-h-11 items-center px-4 text-[15px] transition-colors ${active ? "bg-mist text-navy" : "bg-graphite text-ink hover:bg-navy"}`;
+    `inline-flex min-h-11 items-center px-4 text-[16px] transition-[background-color,color,transform] duration-200 ease-[var(--ease-out)] active:scale-[0.97] ${active ? "bg-mist text-navy" : "bg-graphite text-ink hover:bg-navy"}`;
 
   return (
     <>
@@ -26,8 +28,17 @@ export default async function AbogadosPage({ searchParams }: { searchParams: Pro
         lead="Explora los perfiles por especialidad. Elegir un abogado al enviar tu solicitud no crea por sí solo una relación abogado-cliente."
         image={IMAGES.escalera}
         imageAlt="Escalera de mármol de un tribunal"
+        caption="Escalera del vestíbulo de un palacio de justicia"
       />
-      <section aria-label="Directorio de abogados" className="bg-carbon pb-[var(--section-gap)]">
+      <section aria-labelledby="directorio" className="bg-carbon py-[var(--section-gap)]">
+        <div className="frame mb-10 flex flex-wrap items-end justify-between gap-4">
+          <h2 id="directorio" className="font-display text-[clamp(34px,3.6vw,56px)]">
+            {current ? current.name : "Directorio"}
+          </h2>
+          <p className="text-[16px]" aria-live="polite">
+            {lawyers.length} {lawyers.length === 1 ? "perfil publicado" : "perfiles publicados"}
+          </p>
+        </div>
         <nav aria-label="Filtrar por especialidad" className="frame flex flex-wrap gap-2">
           <Link href="/abogados" className={chip(!current)} aria-current={!current ? "page" : undefined}>
             Todas
@@ -49,12 +60,19 @@ export default async function AbogadosPage({ searchParams }: { searchParams: Pro
             <p className="font-display text-[clamp(28px,3vw,40px)] leading-tight">
               {current ? `Aún no hay perfiles publicados en ${current.short_name.toLowerCase()}.` : "Aún no hay perfiles publicados."}
             </p>
-            <p className="mt-4 text-[17px] text-ink-soft">
+            <p className="mt-4 text-[17px]">
               Puedes enviar tu solicitud y la firma la asignará al profesional del área que corresponda.
             </p>
-            <Link href={`/panel/nueva-solicitud${current ? `?especialidad=${current.slug}` : ""}`} className="btn btn-primary mt-6">
-              Solicitar asesoría
-            </Link>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href={`/panel/nueva-solicitud${current ? `?especialidad=${current.slug}` : ""}`} className="btn btn-primary">
+                Solicitar asesoría
+              </Link>
+              {current ? (
+                <Link href="/abogados" className="btn btn-secondary">
+                  Ver todas las áreas
+                </Link>
+              ) : null}
+            </div>
           </div>
         )}
       </section>

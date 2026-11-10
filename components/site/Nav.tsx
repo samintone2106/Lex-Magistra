@@ -6,8 +6,10 @@ import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { Menu, X } from "lucide-react";
 import { Monogram } from "./Monogram";
+import { MotionToggle } from "./MotionToggle";
 import { Magnetic } from "@/components/motion/Magnetic";
 import { reducedMotion } from "@/components/motion/MotionProvider";
+import { useNavSession } from "@/lib/supabase/use-nav-session";
 
 export const NAV_LINKS = [
   { href: "/", label: "Inicio" },
@@ -20,28 +22,21 @@ export const NAV_LINKS = [
 
 interface Props {
   firmName: string;
-  signedIn: boolean;
-  isAdmin: boolean;
 }
 
-export function Nav({ firmName, signedIn, isAdmin }: Props) {
+export function Nav({ firmName }: Props) {
   const pathname = usePathname();
+  // La sesión se lee en el cliente: el layout público queda estático.
+  const { signedIn, isAdmin } = useNavSession();
   const [open, setOpen] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [solid, setSolid] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => setOpen(false), [pathname]);
 
-  // Se esconde al bajar, vuelve al subir.
+  // Barra siempre visible; toma fondo sólido al dejar el borde superior.
   useEffect(() => {
-    let last = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setSolid(y > 40);
-      setHidden(y > 240 && y > last);
-      last = y;
-    };
+    const onScroll = () => setSolid(window.scrollY > 40);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -76,9 +71,9 @@ export function Nav({ firmName, signedIn, isAdmin }: Props) {
   return (
     <>
       <header
-        className={`fixed inset-x-0 top-0 z-50 transition-[transform,background-color] duration-500 ease-[var(--ease-out)] ${
-          hidden && !open ? "-translate-y-full" : "translate-y-0"
-        } ${solid ? "bg-carbon" : "bg-transparent"}`}
+        className={`fixed inset-x-0 top-0 z-50 transition-colors duration-300 ease-[var(--ease-out)] ${
+          solid || open ? "bg-carbon" : "bg-transparent"
+        }`}
       >
         <nav aria-label="Principal" className="frame flex h-[72px] items-center justify-between gap-6">
           <Link href="/" className="flex items-center gap-3 text-ink" aria-label={`${firmName}, inicio`}>
@@ -159,6 +154,7 @@ export function Nav({ firmName, signedIn, isAdmin }: Props) {
           <Link href={signedIn ? panelHref : "/ingresar"} className="btn btn-primary">
             {signedIn ? "Mi panel" : "Iniciar sesión"}
           </Link>
+          <MotionToggle className="link min-h-11 text-left text-[16px] text-ink sm:col-span-2" />
         </div>
       </div>
     </>

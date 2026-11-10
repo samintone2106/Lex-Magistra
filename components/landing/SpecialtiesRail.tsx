@@ -71,10 +71,19 @@ export function SpecialtiesRail({ specialties }: { specialties: Specialty[] }) {
     const r = card.getBoundingClientRect();
     const px = (e.clientX - r.left) / r.width;
     const py = (e.clientY - r.top) / r.height;
-    gsap.to(card, { rotateY: (px - 0.5) * 10, rotateX: (0.5 - py) * 8, duration: 0.5, ease: "power3.out" });
+    // La perspectiva va en el propio transform: `perspective` en CSS solo afecta a los hijos.
+    gsap.to(card, {
+      rotateY: (px - 0.5) * 8,
+      rotateX: (0.5 - py) * 6,
+      transformPerspective: 900,
+      duration: 0.5,
+      ease: "power3.out",
+      overwrite: "auto",
+    });
   };
+  // Vuelve a plano sin rebote.
   const onLeave = (e: React.PointerEvent<HTMLElement>) =>
-    gsap.to(e.currentTarget, { rotateY: 0, rotateX: 0, duration: 0.8, ease: "elastic.out(1,0.5)" });
+    gsap.to(e.currentTarget, { rotateY: 0, rotateX: 0, duration: 0.5, ease: "power3.out", overwrite: "auto" });
 
   return (
     <section ref={section} id="especialidades" aria-labelledby="esp-title" className="relative bg-carbon">
@@ -98,7 +107,7 @@ export function SpecialtiesRail({ specialties }: { specialties: Specialty[] }) {
                 data-reveal
                 onPointerMove={onMove}
                 onPointerLeave={onLeave}
-                className="group relative flex flex-col bg-graphite [transform-style:preserve-3d] [perspective:900px] lg:h-[64vh] lg:w-[min(36vw,520px)]"
+                className="group relative flex flex-col bg-graphite focus-within:bg-navy transition-colors duration-200 ease-[var(--ease-out)] lg:h-[64vh] lg:w-[min(36vw,520px)]"
               >
                 <div className="duotone relative h-56 overflow-hidden lg:h-[52%]">
                   <div data-rail-img className="absolute inset-[-14%]">
@@ -108,7 +117,7 @@ export function SpecialtiesRail({ specialties }: { specialties: Specialty[] }) {
                 {/* Barra que crece al pasar el cursor */}
                 <span
                   aria-hidden
-                  className="pointer-events-none absolute bottom-0 left-0 h-1 w-full origin-left scale-x-0 bg-mist transition-transform duration-500 ease-[var(--ease-out)] group-hover:scale-x-100"
+                  className="pointer-events-none absolute bottom-0 left-0 h-1 w-full origin-left scale-x-0 bg-mist transition-transform duration-300 ease-[var(--ease-out)] group-hover:scale-x-100 group-focus-within:scale-x-100"
                 />
                 <div className="relative flex flex-1 flex-col gap-3 p-6 lg:p-8">
                   <div className="flex items-center gap-3 text-mist">
@@ -118,7 +127,7 @@ export function SpecialtiesRail({ specialties }: { specialties: Specialty[] }) {
                   <p className="text-[16px] text-ink-soft">{s.summary}</p>
                   <Link
                     href={`/especialidades/${s.slug}`}
-                    className="mt-auto inline-flex items-center gap-2 pt-2 text-[16px] font-medium text-ink after:absolute after:inset-0 hover:text-mist"
+                    className="mt-auto inline-flex items-center gap-2 pt-2 text-[16px] font-medium text-ink transition-colors duration-200 after:absolute after:inset-0 hover:text-mist"
                   >
                     Conocer más
                     <ArrowUpRight aria-hidden size={18} className="transition-transform duration-300 ease-[var(--ease-out)] group-hover:-translate-y-1 group-hover:translate-x-1" />

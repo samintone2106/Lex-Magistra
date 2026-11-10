@@ -20,6 +20,9 @@ const STAGES = [
   { img: IMAGES.placa, caption: "Plaza de Bolívar, Bogotá", ground: "#1A1B1D" },
 ];
 
+/** Recorrido de scroll por cada foto de la historia fija (corto: el visitante no siente que se atasca). */
+const STAGE_SVH = 38;
+
 interface Props {
   advisorHref: string;
   advisorExternal: boolean;
@@ -37,18 +40,31 @@ export function Hero({ advisorHref, advisorExternal }: Props) {
     if (!el) return;
     const ctx = gsap.context(() => {
       const title = el.querySelector<HTMLElement>("[data-hero-title]")!;
-      if (reducedMotion()) {
-        gsap.set(title, { opacity: 1 });
-        return;
+      if (reducedMotion()) return;
+      // Entrada. El título, el texto y la primera foto ya se ven desde el primer pintado:
+      // las palabras solo se esconden tras su máscara si la cortina del preloader todavía las tapa.
+      // Si JS llegó tarde (o no hay cortina), se asientan con un leve desplazamiento, sin desaparecer.
+      const curtain = !document.documentElement.classList.contains("no-intro") && performance.now() < 700;
+      const intro = gsap.timeline({ delay: curtain ? 0.6 : 0 });
+      if (curtain) {
+        const split = SplitText.create(title, { type: "lines,words", mask: "lines" });
+        intro.from(split.words, { yPercent: 115, rotate: 5, duration: 1.3, ease: "expo.out", stagger: 0.07 });
+      } else {
+        intro.from(title, { y: 14, duration: 0.9, ease: "expo.out" });
       }
-      // Entrada: palabras desde máscara, foto que se abre, pie que sube.
-      const split = SplitText.create(title, { type: "lines,words", mask: "lines" });
-      gsap.set(title, { opacity: 1 });
-      const intro = gsap.timeline({ delay: document.documentElement.classList.contains("no-intro") ? 0.1 : 1.2 });
       intro
-        .from(split.words, { yPercent: 115, rotate: 5, duration: 1.3, ease: "expo.out", stagger: 0.07 })
-        .from("[data-hero-photo='0']", { clipPath: "inset(100% 0 0 0)", scale: 1.25, duration: 1.6, ease: "expo.out" }, 0.1)
-        .from("[data-hero-foot] > *", { y: 40, opacity: 0, duration: 1, ease: "expo.out", stagger: 0.1 }, 0.5);
+        .from("[data-hero-photo='0'] img", { scale: 1.12, duration: 1.6, ease: "expo.out" }, 0)
+        .from("[data-hero-foot] > *", { y: 24, duration: 0.8, ease: "expo.out", stagger: 0.08 }, 0.3);
+
+      // Salida hacia la presentación: al soltarse la escena fija, todo retrocede y se apaga
+      // mientras la sección siguiente sube por encima (transform y opacidad, ligado al scroll).
+      gsap.to("[data-hero-exit]", {
+        scale: 0.92,
+        yPercent: 6,
+        opacity: 0.35,
+        ease: "none",
+        scrollTrigger: { trigger: el, start: "bottom bottom", end: "bottom top", scrub: true },
+      });
 
       // Historia fija: cada foto siguiente se abre desde abajo y el fondo cambia.
       const photos = gsap.utils.toArray<HTMLElement>("[data-hero-photo]");
@@ -58,6 +74,8 @@ export function Hero({ advisorHref, advisorExternal }: Props) {
           start: "top top",
           end: "bottom bottom",
           scrub: 0.8,
+          // Capas de GPU solo mientras la historia está en pantalla (y solo las fotos que cambian).
+          onToggle: (self) => gsap.set(photos.slice(1), { willChange: self.isActive ? "clip-path" : "auto" }),
           onUpdate: (self) => {
             const count = el.querySelector("[data-hero-count]");
             const idx = Math.min(STAGES.length, Math.round(self.progress * (STAGES.length - 1)) + 1);
@@ -76,68 +94,76 @@ export function Hero({ advisorHref, advisorExternal }: Props) {
   }, []);
 
   return (
-    <section ref={root} data-hero-section aria-labelledby="hero-title" className="relative" style={{ height: `${100 + (STAGES.length - 1) * 55}svh` }}>
+    <section ref={root} data-hero-section aria-labelledby="hero-title" className="relative" style={{ height: `${100 + (STAGES.length - 1) * STAGE_SVH}svh` }}>
       <div data-hero-stage className="sticky top-0 h-[100svh] overflow-hidden bg-carbon">
-        {/* Fotos: retrato 2:3 centrado, de 90px bajo el borde superior hasta el fondo */}
-        <div className="absolute inset-x-[var(--margin)] bottom-0 top-[96px] mx-auto w-auto max-w-none md:left-1/2 md:right-auto md:w-[min(46vw,720px)] md:-translate-x-1/2">
-          {STAGES.map((s, i) => (
-            <figure
-              key={s.img.src}
-              data-hero-photo={i}
-              className="duotone absolute inset-0 will-change-[clip-path,transform]"
-              style={i > 0 ? { clipPath: "inset(100% 0 0 0)" } : undefined}
+        <div data-hero-exit className="absolute inset-0 origin-[50%_30%]">
+          {/* Fotos: retrato 2:3 centrado, de 90px bajo el borde superior hasta el fondo */}
+          <div className="absolute inset-x-[var(--margin)] bottom-0 top-[96px] mx-auto w-auto max-w-none md:left-1/2 md:right-auto md:w-[min(46vw,720px)] md:-translate-x-1/2">
+            {STAGES.map((s, i) => (
+              <figure
+                key={s.img.src}
+                data-hero-photo={i}
+                className="duotone absolute inset-0"
+                style={i > 0 ? { clipPath: "inset(100% 0 0 0)" } : undefined}
+              >
+                <Image
+                  src={s.img.src}
+                  alt={s.caption}
+                  fill
+                  priority={i === 0}
+                  fetchPriority={i === 0 ? "high" : "low"}
+                  quality={70}
+                  sizes="(min-width: 768px) 46vw, 100vw"
+                  className="object-cover"
+                />
+                <figcaption className="absolute left-3 top-3 z-10 bg-carbon/70 px-2 py-1 text-[13px] text-ink">{s.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
+  
+          {/* Móvil: velos neutros bajo el título y el pie para que el texto se lea sobre cualquier foto. */}
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 z-[5] h-[58%] bg-gradient-to-b from-carbon/90 via-carbon/60 to-transparent md:hidden" />
+          <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-[45%] bg-gradient-to-t from-carbon via-carbon/80 to-transparent md:hidden" />
+
+          {/* Título fijo encima de las fotos */}
+          <div className="pointer-events-none absolute inset-x-0 top-[clamp(120px,22vh,220px)] z-10 frame">
+            <h1
+              id="hero-title"
+              data-hero-title
+              className="font-display text-center text-[clamp(48px,12.5vw,80px)] leading-[0.92] text-ink md:text-[clamp(64px,8.2vw,150px)]"
             >
-              <Image
-                src={s.img.src}
-                alt={s.caption}
-                fill
-                priority={i === 0}
-                sizes="(min-width: 768px) 46vw, 100vw"
-                className="object-cover"
-              />
-              <figcaption className="absolute left-3 top-3 z-10 bg-carbon/70 px-2 py-1 text-[13px] text-ink">{s.caption}</figcaption>
-            </figure>
-          ))}
-        </div>
-
-        {/* Título fijo encima de las fotos */}
-        <div className="pointer-events-none absolute inset-x-0 top-[clamp(120px,22vh,220px)] z-10 frame">
-          <h1
-            id="hero-title"
-            data-hero-title
-            className="font-display text-center text-[clamp(48px,12.5vw,80px)] leading-[0.92] text-ink opacity-0 md:text-[clamp(64px,8.2vw,150px)] [.js-fallback_&]:opacity-100"
+              <span className="block md:whitespace-nowrap">Defendemos tus derechos.</span>{" "}
+              <span className="block md:whitespace-nowrap">Construimos soluciones.</span>
+            </h1>
+          </div>
+  
+          <div
+            data-hero-foot
+            className="absolute inset-x-0 bottom-0 z-20 frame flex flex-col gap-5 pb-8 md:flex-row md:items-end md:justify-between"
           >
-            <span className="block md:whitespace-nowrap">Defendemos tus derechos.</span>{" "}
-            <span className="block md:whitespace-nowrap">Construimos soluciones.</span>
-          </h1>
-        </div>
-
-        <div
-          data-hero-foot
-          className="absolute inset-x-0 bottom-0 z-20 frame flex flex-col gap-5 pb-8 md:flex-row md:items-end md:justify-between"
-        >
-          <p className="max-w-[34ch] bg-carbon/0 text-[17px] font-medium leading-snug text-ink md:max-w-[30ch]">
-            Soluciones jurídicas estratégicas, profesionales y personalizadas para proteger tus intereses y
-            acompañarte en cada decisión.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <span data-hero-count className="hidden text-[14px] text-ink-soft tabular-nums md:inline" aria-hidden>
-              1 / {STAGES.length}
-            </span>
-            <Link href="/especialidades" className="btn btn-secondary">
-              Conoce nuestras especialidades
-            </Link>
-            <Magnetic>
-              {advisorExternal ? (
-                <a href={advisorHref} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-                  Habla con un asesor
-                </a>
-              ) : (
-                <Link href={advisorHref} className="btn btn-primary">
-                  Habla con un asesor
-                </Link>
-              )}
-            </Magnetic>
+            <p className="max-w-[34ch] bg-carbon/0 text-[17px] font-medium leading-snug text-ink md:max-w-[30ch]">
+              Soluciones jurídicas estratégicas, profesionales y personalizadas para proteger tus intereses y
+              acompañarte en cada decisión.
+            </p>
+            <div className="flex flex-wrap items-center gap-3">
+              <span data-hero-count className="hidden text-[14px] text-ink-soft tabular-nums md:inline" aria-hidden>
+                1 / {STAGES.length}
+              </span>
+              <Link href="/especialidades" className="btn btn-secondary">
+                Conoce nuestras especialidades
+              </Link>
+              <Magnetic>
+                {advisorExternal ? (
+                  <a href={advisorHref} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
+                    Habla con un asesor
+                  </a>
+                ) : (
+                  <Link href={advisorHref} className="btn btn-primary">
+                    Habla con un asesor
+                  </Link>
+                )}
+              </Magnetic>
+            </div>
           </div>
         </div>
       </div>

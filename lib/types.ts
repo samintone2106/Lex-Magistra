@@ -61,6 +61,7 @@ export interface Profile {
   document_id: string | null;
   city: string | null;
   role: UserRole;
+  avatar_url: string | null;
   data_consent_at: string | null;
   created_at: string;
 }
@@ -80,6 +81,22 @@ export interface ConsultationRequest {
   admin_notes: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface RequestAttachment {
+  id: string;
+  request_id: string;
+  uploaded_by: string;
+  path: string;
+  name: string;
+  mime: "image/jpeg" | "image/png" | "image/webp" | "application/pdf";
+  size: number;
+  created_at: string;
+}
+
+/** Adjunto listo para mostrar: miniatura firmada (solo imágenes) y si quien mira puede quitarlo. */
+export interface AttachmentView extends RequestAttachment {
+  thumbUrl: string | null;
 }
 
 export interface Review {

@@ -1,10 +1,14 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
+import { PUBLIC_DATA_TAG } from "@/lib/data";
 import { SETTING_KEYS } from "@/lib/content/settings";
 import {
+  IMAGE_MIMES,
+  LAWYER_PHOTO_MAX,
+  checkUpload,
   firmSchema,
   formToObject,
   lawyerSchema,
@@ -43,6 +47,7 @@ async function requireStaff() {
 
 function revalidatePublic() {
   revalidatePath("/", "layout");
+  revalidateTag(PUBLIC_DATA_TAG);
 }
 
 /* ───────── Abogados ───────── */
@@ -58,11 +63,11 @@ export async function saveLawyer(_prev: ActionState, fd: FormData): Promise<Acti
   let photoUrl = d.photo_url || null;
   const photo = fd.get("photo");
   if (photo instanceof File && photo.size > 0) {
-    if (!["image/jpeg", "image/png", "image/webp"].includes(photo.type)) return { ok: false, errors: { photo: "Usa JPG, PNG o WEBP" } };
-    if (photo.size > 3 * 1024 * 1024) return { ok: false, errors: { photo: "Máximo 3 MB" } };
-    const ext = photo.type.split("/")[1];
-    const path = `${crypto.randomUUID()}.${ext}`;
-    const { error: upErr } = await supabase.storage.from("lawyer-photos").upload(path, photo, { contentType: photo.type });
+    // Tipo comprobado por los primeros bytes, no solo por el MIME que declara el navegador.
+    const file = await checkUpload(photo, IMAGE_MIMES, LAWYER_PHOTO_MAX);
+    if (!file.ok) return { ok: false, errors: { photo: file.error }, message: "Revisa los campos marcados." };
+    const path = `${crypto.randomUUID()}.${file.ext}`;
+    const { error: upErr } = await supabase.storage.from("lawyer-photos").upload(path, file.bytes, { contentType: file.mime });
     if (upErr) return { ok: false, message: "No pudimos subir la foto." };
     photoUrl = supabase.storage.from("lawyer-photos").getPublicUrl(path).data.publicUrl;
   }

@@ -24,8 +24,16 @@ export default async function AdminAbogado({ params }: { params: Promise<{ id: s
 
   return (
     <>
-      <PanelTitle title={isNew ? "Nuevo abogado" : lawyer!.full_name}>
-        {lawyer ? <Link href={`/abogados/${lawyer.id}`} target="_blank" className="btn btn-secondary">Ver perfil público</Link> : null}
+      <PanelTitle
+        title={isNew ? "Nuevo abogado" : lawyer!.full_name}
+        back={{ href: "/admin/abogados", label: "Abogados" }}
+        lead={isNew ? "Completa el perfil y márcalo como publicado para que aparezca en el sitio." : `${lawyer!.is_active ? "Publicado" : "Oculto"} · ${lawyer!.accepts_consultations ? "recibe consultas" : "sin cupo"} · ${selected.length} ${selected.length === 1 ? "especialidad" : "especialidades"}`}
+      >
+        {lawyer ? (
+          <Link href={`/abogados/${lawyer.id}`} target="_blank" className="btn btn-secondary">
+            Ver perfil público <span className="sr-only">(se abre en una pestaña nueva)</span>
+          </Link>
+        ) : null}
       </PanelTitle>
       <LawyerForm lawyer={lawyer} firms={(firms ?? []) as Firm[]} specialties={(specialties ?? []) as Specialty[]} selected={selected} accounts={(accounts ?? []) as { id: string; full_name: string }[]} />
     </>

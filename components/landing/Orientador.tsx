@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 import type { Specialty } from "@/lib/types";
 import { SpecialtyIcon } from "@/components/site/SpecialtyIcon";
 import { reducedMotion } from "@/components/motion/MotionProvider";
+import { SplitHeading } from "@/components/motion/SplitHeading";
 
 /**
  * Lo interactivo de la página: el visitante elige lo que le pasa y ve qué área lo atiende,
@@ -23,8 +24,9 @@ export function Orientador({ specialties }: { specialties: Specialty[] }) {
     if (el && !reducedMotion()) {
       gsap.fromTo(
         el.querySelectorAll("[data-o]"),
-        { y: 24, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.6, ease: "expo.out", stagger: 0.05, overwrite: true },
+        // Cambio frecuente: entrada corta y discreta.
+        { y: 12, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.4, ease: "expo.out", stagger: 0.04, overwrite: true },
       );
     }
   };
@@ -35,9 +37,9 @@ export function Orientador({ specialties }: { specialties: Specialty[] }) {
     <section aria-labelledby="orientador-title" className="bg-navy py-[var(--section-gap)]">
       <div className="frame grid gap-12 lg:grid-cols-12">
         <div className="lg:col-span-5">
-          <h2 id="orientador-title" data-reveal className="font-display text-[clamp(40px,4.6vw,72px)]">
+          <SplitHeading id="orientador-title" className="font-display text-[clamp(40px,4.6vw,72px)]">
             ¿Qué necesitas resolver?
-          </h2>
+          </SplitHeading>
           <p data-reveal className="mt-6 max-w-[42ch] text-[17px] text-ink-soft">
             Elige la situación que más se parece a la tuya y te mostramos el área que la atiende.
           </p>
@@ -49,11 +51,24 @@ export function Orientador({ specialties }: { specialties: Specialty[] }) {
                   role="option"
                   aria-selected={i === active}
                   onClick={() => choose(i)}
-                  className={`w-full py-3 text-left text-[18px] leading-snug transition-[color,padding] duration-300 ease-[var(--ease-out)] ${
-                    i === active ? "pl-4 text-ink" : "text-ink-soft hover:pl-2 hover:text-ink"
+                  className={`group relative flex w-full items-center py-3 pr-6 text-left text-[18px] leading-snug transition-colors duration-200 ease-[var(--ease-out)] ${
+                    i === active ? "text-ink" : "text-ink-soft hover:text-ink"
                   }`}
                 >
-                  {sp.problems[0]}
+                  {/* Marca de la opción activa: se traza desde la izquierda (solo transform) */}
+                  <span
+                    aria-hidden
+                    className={`absolute left-0 top-1/2 h-px w-3 origin-left bg-mist transition-transform duration-200 ease-[var(--ease-out)] ${
+                      i === active ? "scale-x-100" : "scale-x-0"
+                    }`}
+                  />
+                  <span
+                    className={`transition-transform duration-200 ease-[var(--ease-out)] ${
+                      i === active ? "translate-x-5" : "group-hover:translate-x-2 group-active:translate-x-1"
+                    }`}
+                  >
+                    {sp.problems[0]}
+                  </span>
                 </button>
               </li>
             ))}

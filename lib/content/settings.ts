@@ -2,7 +2,7 @@ import type { SiteSettings } from "@/lib/types";
 
 /** Valores por defecto. Se sobrescriben con la tabla site_settings (editable en /admin/configuracion). */
 export const DEFAULT_SETTINGS: SiteSettings = {
-  firm_name: "Firma Jurídica",
+  firm_name: "Lex Magistra",
   firm_tagline: "Abogados en Colombia",
   whatsapp_number: "",
   whatsapp_message: "Hola, quisiera orientación sobre un asunto legal.",

@@ -57,7 +57,7 @@ body {
   color: var(--ink);
   font-family: var(--font-sans);
   font-size: 17px;
-  line-height: 1.55;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
@@ -106,11 +106,18 @@ html.lenis body {
 }
 .js [data-reveal] {
   opacity: 0;
-  transform: translateY(28px);
+  transform: translateY(16px);
 }
 .js-fallback [data-reveal] {
   opacity: 1 !important;
   transform: none !important;
+}
+/* Fotos con máscara: cerradas desde arriba hasta que entran en pantalla */
+.js [data-media] {
+  clip-path: inset(100% 0 0 0);
+}
+.js-fallback [data-media] {
+  clip-path: none !important;
 }
 
 /* Botones */
@@ -128,7 +135,6 @@ html.lenis body {
     background-color var(--dur) var(--ease-out),
     color var(--dur) var(--ease-out),
     transform var(--dur-fast) var(--ease-out);
-  will-change: transform;
 }
 .btn:active {
   transform: scale(0.97);
@@ -177,6 +183,11 @@ html.lenis body {
 }
 .link:hover {
   color: var(--mist);
+}
+/* Sobre fondo niebla el color niebla desaparece: se marca con el subrayado. */
+.on-mist .link:hover {
+  color: var(--navy);
+  text-decoration-thickness: 2px;
 }
 
 /* Formularios */
@@ -235,16 +246,11 @@ textarea.field {
 @keyframes page-in {
   from {
     opacity: 0;
-    transform: translateY(14px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 .page-enter {
-  /* backwards (no both): un transform retenido romperia position:fixed de los pines */
-  animation: page-in 420ms var(--ease-out) backwards;
+  /* Solo opacidad y corta: nunca retrasa la primera pantalla ni retiene un transform */
+  animation: page-in 150ms var(--ease-out) backwards;
 }
 
 /* Preloader (CSS puro: se va solo aunque falle JS) */
@@ -275,7 +281,7 @@ textarea.field {
   display: grid;
   place-items: center;
   background: var(--navy);
-  animation: curtain 800ms var(--ease-in-out) 1.1s forwards;
+  animation: curtain 600ms var(--ease-in-out) 0.5s forwards;
   pointer-events: none;
 }
 .preloader path,
@@ -283,10 +289,10 @@ textarea.field {
 .preloader circle {
   stroke-dasharray: 400;
   stroke-dashoffset: 400;
-  animation: draw 1.2s var(--ease-out) forwards;
+  animation: draw 700ms var(--ease-out) forwards;
 }
 .preloader .name {
-  animation: fade-up 500ms var(--ease-out) 700ms both;
+  animation: fade-up 400ms var(--ease-out) 250ms both;
 }
 
 /* WhatsApp */
@@ -354,7 +360,8 @@ textarea.field {
   animation-delay: 0.3s, 3s;
 }
 
-/* Movimiento reducido: solo si el visitante lo elige con el interruptor del pie. */
+/* Movimiento reducido: por elección del visitante (interruptor del pie y del menú)
+   o, si nunca eligió, porque su sistema pide reducir movimiento (script de arranque). */
 .reduce-motion *,
 .reduce-motion *::before,
 .reduce-motion *::after {
@@ -373,4 +380,7 @@ textarea.field {
 .reduce-motion [data-split] {
   opacity: 1 !important;
   transform: none !important;
+}
+.reduce-motion [data-media] {
+  clip-path: none !important;
 }

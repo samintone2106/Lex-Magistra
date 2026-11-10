@@ -7,7 +7,7 @@ export default async function NuevaSolicitudPage({ searchParams }: { searchParam
   const [specialties, lawyers, firms] = await Promise.all([getSpecialties(), getLawyers(), getFirms()]);
   return (
     <>
-      <PanelTitle title="Nueva solicitud" lead="Cuatro pasos: especialidad, abogado, confirmación y descripción del caso." />
+      <PanelTitle title="Nueva solicitud" lead="Cuatro pasos: el área, el abogado, una confirmación y tu caso. Lo que escribas es confidencial y solo lo lee el equipo jurídico." />
       <RequestWizard specialties={specialties} lawyers={lawyers} firms={firms} initialSpecialty={especialidad} initialLawyer={abogado} />
     </>
   );

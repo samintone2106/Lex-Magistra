@@ -6,7 +6,7 @@ export default async function AdminConfiguracion() {
   const settings = await getSettings();
   return (
     <>
-      <PanelTitle title="Configuración y contenido" lead="Datos de la firma, WhatsApp, contacto y textos que se muestran en el sitio." />
+      <PanelTitle title="Configuración y contenido" lead="WhatsApp, identidad, contacto y redes de la firma. Todo lo que guardes aquí se refleja en el sitio público." />
       <SettingsForm settings={settings} />
     </>
   );

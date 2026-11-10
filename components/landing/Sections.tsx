@@ -38,10 +38,10 @@ export function Intro({ settings, specialtiesCount }: { settings: SiteSettings; 
         ))}
       </dl>
       <div className="frame mt-[120px] grid gap-6 lg:grid-cols-12">
-        <figure data-reveal className="duotone relative aspect-[16/9] lg:col-span-8">
-          <Image src={IMAGES.capitolio.src} alt="Fachada del Capitolio Nacional en Bogotá" fill sizes="(min-width:1024px) 66vw, 100vw" className="object-cover" />
+        <figure data-media className="duotone relative aspect-[16/9] lg:col-span-8">
+          <Image src="/img/biblioteca.jpg" alt="Estantería con libros antiguos de derecho" fill sizes="(min-width:1024px) 66vw, 100vw" quality={70} className="object-cover" />
         </figure>
-        <figure data-reveal className="duotone relative hidden aspect-[3/4] lg:col-span-4 lg:block">
+        <figure data-media className="duotone relative hidden aspect-[3/4] lg:col-span-4 lg:block">
           <Image src={IMAGES.escalera.src} alt="Escalera de mármol en el vestíbulo de un tribunal" fill sizes="33vw" className="object-cover" />
         </figure>
       </div>
@@ -131,9 +131,9 @@ export function WhyUs() {
   return (
     <section aria-labelledby="porque-title" className="bg-graphite py-[var(--section-gap)]">
       <div className="frame">
-        <h2 id="porque-title" data-reveal className="font-display text-[clamp(40px,4.4vw,68px)]">
+        <SplitHeading id="porque-title" className="font-display text-[clamp(40px,4.4vw,68px)]">
           ¿Por qué elegirnos?
-        </h2>
+        </SplitHeading>
       </div>
       <div className="frame mt-16 grid gap-12 lg:grid-cols-12 lg:gap-6">
         {REASONS.map((r) => (
@@ -164,9 +164,9 @@ export function ReviewsSection({ reviews }: { reviews: (Review & { lawyerName?: 
   return (
     <section aria-labelledby="opiniones-title" className={`grid grid-rows-[auto_1fr_auto] bg-navy py-20 ${reviews.length ? "min-h-[100svh]" : ""}`}>
       <div className="frame flex flex-wrap items-end justify-between gap-6">
-        <h2 id="opiniones-title" data-reveal className="font-display text-[clamp(40px,4.4vw,68px)]">
+        <SplitHeading id="opiniones-title" className="font-display text-[clamp(40px,4.4vw,68px)]">
           Opiniones de clientes
-        </h2>
+        </SplitHeading>
         {reviews.length ? (
           <p data-reveal className="flex items-center gap-3 text-[17px]">
             <Stars value={avg} /> {avg.toFixed(1)} de 5 · {reviews.length} {reviews.length === 1 ? "opinión" : "opiniones"}

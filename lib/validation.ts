@@ -160,3 +160,66 @@ export interface ActionState {
 }
 
 export const initialState: ActionState = { ok: false };
+
+/* ───────── Archivos subidos ───────── */
+
+export const IMAGE_MIMES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const DOC_MIMES = [...IMAGE_MIMES, "application/pdf"] as const;
+export type UploadMime = (typeof DOC_MIMES)[number];
+
+export const MB = 1024 * 1024;
+export const AVATAR_MAX = 2 * MB;
+export const LAWYER_PHOTO_MAX = 3 * MB;
+export const ATTACHMENT_MAX = 10 * MB;
+export const ATTACHMENTS_PER_REQUEST = 5;
+
+const EXT: Record<UploadMime, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "application/pdf": "pdf",
+};
+
+/** Tipo real del archivo según sus primeros bytes (no se confía en el MIME que manda el navegador). */
+export function sniffMime(head: Uint8Array): UploadMime | null {
+  const at = (i: number, bytes: number[]) => bytes.every((b, k) => head[i + k] === b);
+  if (at(0, [0xff, 0xd8, 0xff])) return "image/jpeg";
+  if (at(0, [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])) return "image/png";
+  if (at(0, [0x52, 0x49, 0x46, 0x46]) && at(8, [0x57, 0x45, 0x42, 0x50])) return "image/webp"; // RIFF....WEBP
+  if (at(0, [0x25, 0x50, 0x44, 0x46, 0x2d])) return "application/pdf"; // %PDF-
+  return null;
+}
+
+export type CheckedFile = { ok: true; mime: UploadMime; ext: string; bytes: Uint8Array } | { ok: false; error: string };
+
+/**
+ * Valida un archivo subido: presencia, tamaño, MIME en la lista permitida y que los bytes
+ * coincidan con ese tipo. Devuelve los bytes para subirlos tal cual se verificaron.
+ */
+export async function checkUpload(value: FormDataEntryValue | null, allowed: readonly UploadMime[], maxBytes: number): Promise<CheckedFile> {
+  if (!(value instanceof File) || value.size === 0) return { ok: false, error: "Elige un archivo." };
+  const maxMb = Math.round(maxBytes / MB);
+  if (value.size > maxBytes) return { ok: false, error: `El archivo supera ${maxMb} MB.` };
+  const kinds = allowed.includes("application/pdf") ? "JPG, PNG, WEBP o PDF" : "JPG, PNG o WEBP";
+  if (!(allowed as readonly string[]).includes(value.type)) return { ok: false, error: `Formato no permitido. Usa ${kinds}.` };
+  const bytes = new Uint8Array(await value.arrayBuffer());
+  const real = sniffMime(bytes.subarray(0, 16));
+  // Un JPG renombrado a .png se acepta como lo que realmente es; un ejecutable con extensión .pdf no.
+  if (!real || !allowed.includes(real)) return { ok: false, error: `El contenido no corresponde a un ${kinds} válido.` };
+  return { ok: true, mime: real, ext: EXT[real], bytes };
+}
+
+/** Nombre visible seguro: sin rutas, sin caracteres de control ni reservados, máximo 160. */
+export function safeFileName(name: string, ext: string): string {
+  const base = (name.split(/[\\/]/).pop() ?? "")
+    .normalize("NFC")
+    .replace(/[\u0000-\u001f\u007f<>:"|?*]/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/^\.+/, "");
+  const stem = base.replace(/\.[^.]*$/, "").slice(0, 150) || "documento";
+  return `${stem}.${ext}`;
+}
+
+/** Ruta de Storage con un segmento aleatorio: nunca colisiona ni revela el nombre original. */
+export const storagePath = (folder: string, ext: string) => `${folder}/${crypto.randomUUID()}.${ext}`;
