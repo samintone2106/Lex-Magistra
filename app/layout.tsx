@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Instrument_Serif } from "next/font/google";
 import { getSettings } from "@/lib/data";
+import { demoSwitcherEnabled } from "@/lib/demo-accounts";
+import { DemoSwitcher } from "@/components/dev/DemoSwitcher";
 import "./globals.css";
 
 const geist = Geist({ variable: "--font-geist", subsets: ["latin"], display: "swap" });
@@ -38,7 +40,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <head>
         <script dangerouslySetInnerHTML={{ __html: BOOT }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        {demoSwitcherEnabled() ? <DemoSwitcher /> : null}
+      </body>
     </html>
   );
 }
