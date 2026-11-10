@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { LawyerWithRelations } from "@/lib/types";
+import { isOwnPublicUrl } from "@/lib/storage-url";
 
 function initials(name: string) {
   return name
@@ -16,7 +17,7 @@ function initials(name: string) {
 export function LawyerPortrait({ lawyer, sizes = "(min-width:1024px) 25vw, 50vw", priority = false }: { lawyer: LawyerWithRelations; sizes?: string; priority?: boolean }) {
   return (
     <div className="relative aspect-[4/5] overflow-hidden bg-navy">
-      {lawyer.photo_url ? (
+      {isOwnPublicUrl(lawyer.photo_url, "lawyer-photos") ? (
         <Image
           src={lawyer.photo_url}
           alt={`Fotografía de ${lawyer.full_name}`}

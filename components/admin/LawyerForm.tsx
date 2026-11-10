@@ -5,6 +5,7 @@ import { saveLawyer } from "@/lib/actions/admin";
 import { Checkbox, Field, FormMessage, Hint, RequiredNote, Select, SubmitButton, TextArea } from "@/components/ui/Form";
 import { ImageDrop } from "@/components/ui/ImageDrop";
 import { LAWYER_PHOTO_MAX } from "@/lib/validation";
+import { isOwnPublicUrl } from "@/lib/storage-url";
 import { FormSection } from "@/components/ui/FormSection";
 import type { Firm, Lawyer, Specialty } from "@/lib/types";
 
@@ -41,7 +42,7 @@ export function LawyerForm({
             layout="stack"
             grayscale
             maxBytes={LAWYER_PHOTO_MAX}
-            currentUrl={lawyer?.photo_url}
+            currentUrl={isOwnPublicUrl(lawyer?.photo_url, "lawyer-photos") ? lawyer?.photo_url : null}
             fallback="Sin foto: se mostrarán sus iniciales"
             error={e.photo}
             hint="JPG, PNG o WEBP. Se recorta en retrato 4:5 y se guarda optimizada."

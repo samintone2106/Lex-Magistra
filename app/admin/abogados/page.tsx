@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { isOwnPublicUrl } from "@/lib/storage-url";
 import { deleteLawyer } from "@/lib/actions/admin";
 import { PanelTitle } from "@/components/panel/Shell";
 import { ConfirmButton } from "@/components/admin/ConfirmButton";
@@ -70,7 +71,7 @@ export default async function AdminAbogados({ searchParams }: { searchParams: Pr
               const specs = l.lawyer_specialties.map((s) => s.specialty?.short_name).filter(Boolean) as string[];
               return (
                 <li key={l.id} className="grid grid-cols-[48px_minmax(0,1fr)] items-center gap-x-4 gap-y-2 py-3 md:grid-cols-[48px_minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1.2fr)_auto]">
-                  {l.photo_url ? (
+                  {isOwnPublicUrl(l.photo_url, "lawyer-photos") ? (
                     <span className="relative block h-12 w-12 overflow-hidden bg-navy">
                       <Image src={l.photo_url} alt="" fill sizes="48px" className="object-cover grayscale" />
                     </span>

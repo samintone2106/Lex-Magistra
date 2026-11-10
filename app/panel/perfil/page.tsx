@@ -73,7 +73,7 @@ export default async function PerfilPage() {
                 grayscale
                 maxBytes={LAWYER_PHOTO_MAX}
                 action={uploadOwnLawyerPhoto}
-                currentUrl={lawyer.photo_url}
+                currentUrl={isOwnPublicUrl(lawyer.photo_url, "lawyer-photos") ? lawyer.photo_url : null}
                 fallback="Sin foto: el sitio muestra tus iniciales"
                 hint="JPG, PNG o WEBP. Se recorta en retrato 4:5; arrastra la imagen para que tu cara quede centrada."
               />
